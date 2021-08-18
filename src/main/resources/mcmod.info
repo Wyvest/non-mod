@@ -1,14 +1,14 @@
 [
   {
-    "modid": "forgetemplate",
-    "name": "ForgeTemplate",
-    "description": "An example template",
+    "modid": "nonmod",
+    "name": "NonMod",
+    "description": "add a [NON] tag to people who don't have ranks.",
     "version": "${version}",
     "mcversion": "${mcversion}",
     "url": "",
     "updateUrl": "",
     "authorList": [
-      ""
+      "Wyvest"
     ],
     "credits": "",
     "logoFile": "",
