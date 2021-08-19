@@ -9,15 +9,14 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import org.apache.commons.lang3.StringUtils;
 
-import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Mod(modid = "nonmod", name = "NonMod", version = "1.0")
+@Mod(modid = "nonmod", name = "NonMod", version = "1.1")
 public class NonMod {
-    Pattern regex = Pattern.compile("^(?:[\\w\\- ]+ )?(?:(?<chatTypePrefix>[A-Za-z]+) > |)(?<stars>(?:\\[.*?]?)* )(?<tags>(?:\\[[^]]+] ?)*)(?<senderUsername>\\w{1,16})(?: [\\w\\- ]+)?: (?<message>.+)$");
-    String[] ranks = new String[]{"youtube", "owner", "admin", "gm", "mvp", "vip", "mojang", "events", "mcp", "pig"};
+    Pattern regex = Pattern.compile("^(?:[\\w\\- ]+ )?(?:(?<chatTypePrefix>[A-Za-z]+) > |)(?<tags>(?:\\[[^]]+] ?)*)(?<senderUsername>\\w{1,16})(?: [\\w\\- ]+)?: (?<message>.+)$");
 
     @Mod.EventHandler
     public void onFMLInitialization(FMLInitializationEvent event) {
@@ -26,23 +25,21 @@ public class NonMod {
 
     @SubscribeEvent
     public void doThings(ClientChatReceivedEvent event) {
-        String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(event.message.getUnformattedText());
+        ChatComponentText text = (ChatComponentText) event.message;
+        String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(text.getUnformattedText());
         Matcher matcher = regex.matcher(unformattedText);
         if (matcher.matches()) {
-            if (!containsAny(matcher.group("tags"), ranks)) {
-                Minecraft.getMinecraft().thePlayer.addChatMessage(addNonTag((ChatComponentText) event.message, matcher));
+            String substringBefore = StringUtils.substringBefore(text.getFormattedText(), matcher.group("senderUsername").substring(1));
+            if (substringBefore.charAt(substringBefore.lastIndexOf("§") + 1) == '7') {
+                Minecraft.getMinecraft().thePlayer.addChatMessage(addNonTag(text, matcher));
                 event.setCanceled(true);
+            } else if (substringBefore.charAt(substringBefore.lastIndexOf("§") + 1) == 'r') {
+                if (substringBefore.charAt(substringBefore.lastIndexOf("§", substringBefore.lastIndexOf("§"))) == '7') {
+                    Minecraft.getMinecraft().thePlayer.addChatMessage(addNonTag(text, matcher));
+                    event.setCanceled(true);
+                }
             }
         }
-    }
-
-    private boolean containsAny(String string, String[] list) {
-        for (String check : list) {
-            if (string.toLowerCase(Locale.ENGLISH).contains(check)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private ChatComponentText addNonTag(ChatComponentText message, Matcher matcher) {
