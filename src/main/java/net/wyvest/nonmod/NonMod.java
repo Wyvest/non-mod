@@ -14,7 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-@Mod(modid = "nonmod", name = "NonMod", version = "1.1")
+@Mod(modid = "nonmod", name = "NonMod", version = "1.2")
 public class NonMod {
     Pattern regex = Pattern.compile("^(?:[\\w\\- ]+ )?(?:(?<chatTypePrefix>[A-Za-z]+) > |)(?<tags>(?:\\[[^]]+] ?)*)(?<senderUsername>\\w{1,16})(?: [\\w\\- ]+)?: (?<message>.+)$");
 
@@ -25,6 +25,7 @@ public class NonMod {
 
     @SubscribeEvent
     public void doThings(ClientChatReceivedEvent event) {
+        if (!(event.message instanceof ChatComponentText) return;
         ChatComponentText text = (ChatComponentText) event.message;
         String unformattedText = EnumChatFormatting.getTextWithoutFormattingCodes(text.getUnformattedText());
         Matcher matcher = regex.matcher(unformattedText);
